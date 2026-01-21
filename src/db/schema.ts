@@ -32,6 +32,8 @@ export const resumesTable = pgTable("resumes", {
 
   fileName: varchar("file_name", { length: 255 }).notNull(),
   extractedText: text("extracted_text").notNull(),
+  status: varchar("status", { length: 20 }).default("uploaded"),
+
 
   uploadedAt: timestamp("uploaded_at").defaultNow().notNull(),
 });

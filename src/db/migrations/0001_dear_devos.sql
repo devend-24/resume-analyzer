@@ -1,0 +1,1 @@
+ALTER TABLE "resumes" ADD COLUMN "status" varchar(20) DEFAULT 'uploaded';
