@@ -202,11 +202,7 @@ export default function ResumeInsights({ resumeText, isAnalyzed }: ResumeInsight
               </div>
             )}
 
-            <div className="pt-4 border-t border-slate-200">
-              <button className="w-full py-2.5 px-4 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-lg font-medium hover:from-indigo-600 hover:to-purple-700 transition-all duration-200 shadow-md hover:shadow-lg">
-                Download Detailed Report
-              </button>
-            </div>
+            
           </div>
         )}
       </div>

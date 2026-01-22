@@ -1,58 +1,31 @@
 "use client";
 
-import { analyzeResume } from "@/actions/analyze-resume";
-import { useState } from "react";
-
 type ResumeSummaryProps = {
   resumeText: string;
-  resumeId?: number;
-  onAnalysisComplete?: () => void; // Add this prop
+  analysis: {
+    summary: string;
+    skills: string[];
+    experienceYears: number | null;
+  } | null;
+  loading: boolean;
+  error: string | null;
+  onGenerate: () => void;
 };
 
-type AnalysisResult = {
-  summary: string;
-  skills: string[];
-  experienceYears: number | null;
-};
-
-
-
-export default function ResumeSummary({ resumeText, resumeId, onAnalysisComplete }: ResumeSummaryProps) {
-  const [analysis, setAnalysis] = useState<AnalysisResult | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const handleGenerateSummary = async () => {
-    if (!resumeText) return;
-
-    setLoading(true);
-    setError(null);
-
-    try {
-      // Call AI server action - it now returns clean, parsed data
-      const result = await analyzeResume(resumeText);
-      setAnalysis(result);
-
-      if (onAnalysisComplete) {
-        onAnalysisComplete();
-      }
-    } catch (err: any) {
-      console.error("Analysis error:", err);
-      setError(err.message || "Failed to generate summary");
-    } finally {
-      setLoading(false);
-    }
-  };
-
+export default function ResumeSummary({ 
+  resumeText, 
+  analysis, 
+  loading, 
+  error, 
+  onGenerate 
+}: ResumeSummaryProps) {
   return (
-    <div className="border rounded-lg p-6 min-h-screen bg-white">
-      <h2 className="text-2xl font-bold mb-6 text-gray-900">Resume Analysis</h2>
-
+    <div className="rounded-lg">
       {/* Generate Summary Button */}
       <button
-        onClick={handleGenerateSummary}
+        onClick={onGenerate}
         disabled={loading || !resumeText}
-        className="mb-6 px-6 py-2.5 bg-black text-white rounded-lg hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
+        className="mb-6 w-full px-6 py-2.5 bg-black text-white rounded-lg hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
       >
         {loading ? "Analyzing..." : "Generate Summary"}
       </button>

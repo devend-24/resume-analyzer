@@ -6,6 +6,8 @@ type ResumeAnalysis = {
   summary: string;
   skills: string[];
   experienceYears: number | null;
+  fullName: string | null;
+  email: string | null;
 };
 
 /**
@@ -28,6 +30,14 @@ function extractJSON(text: string): string {
   return jsonMatch ? jsonMatch[0] : text;
 }
 
+function extractEmail(text: string): string | null {
+  const match = text.match(
+    /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/
+  );
+  return match ? match[0] : null;
+}
+
+
 export async function analyzeResume(
   resumeText: string
 ): Promise<ResumeAnalysis> {
@@ -41,6 +51,7 @@ Analyze the following resume text and return ONLY a raw JSON object (no markdown
 
 Required JSON structure:
 {
+  "fullName": "Candidate full name if clearly mentioned, otherwise null",
   "summary": "A short professional summary (2-3 sentences highlighting key expertise and experience)",
   "skills": ["skill1", "skill2", "skill3"],
   "experienceYears": number
@@ -52,9 +63,13 @@ Rules:
 - Skills should be an array of the most important technical skills (limit to 15-20)
 - experienceYears should be the total years of professional experience (use 0 for fresh graduates)
 - Summary should be professional and concise
+- If full name is not clearly identifiable, return null
 
 Resume:
 ${resumeText}`;
+
+const extractedEmail = extractEmail(resumeText);
+
 
   try {
     const completion = await groq.chat.completions.create({
@@ -93,12 +108,26 @@ ${resumeText}`;
 
       // Validate the structure
       analysis = {
-        summary: parsed.summary || "No summary available",
-        skills: Array.isArray(parsed.skills) ? parsed.skills : [],
+        summary: typeof parsed.summary === "string"
+          ? parsed.summary
+          : "No summary available",
+
+        skills: Array.isArray(parsed.skills)
+          ? parsed.skills
+          : [],
+
         experienceYears:
           typeof parsed.experienceYears === "number"
             ? parsed.experienceYears
             : null,
+
+        fullName:
+          typeof parsed.fullName === "string"
+            ? parsed.fullName
+            : null,
+
+        email: extractedEmail,
+
       };
     } catch (parseError) {
       console.error("JSON Parse Error:", parseError);
@@ -106,9 +135,11 @@ ${resumeText}`;
       
       // Fallback: return raw content as summary
       analysis = {
-        summary: cleanedContent.substring(0, 500), // Limit length
-        skills: [],
-        experienceYears: null,
+          summary: cleanedContent.substring(0, 500),
+          skills: [],
+          experienceYears: null,
+          fullName: null,
+          email: extractedEmail,
       };
     }
 
